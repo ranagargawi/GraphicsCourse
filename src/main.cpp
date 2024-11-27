@@ -24,28 +24,27 @@ const float far = 100.0f;
 /* Shape vertices coordinates with positions, colors, and corrected texCoords */
 float vertices[] = {
     // positions            // colors            // texCoords
-    -0.5f, -0.5f,  0.5f,    1.0f, 0.0f, 0.0f,    0.0f, 0.0f,  // Bottom-left
-     0.5f, -0.5f,  0.5f,    0.0f, 1.0f, 0.0f,    1.0f, 0.0f,  // Bottom-right
-     0.5f,  0.5f,  0.5f,    0.0f, 0.0f, 1.0f,    1.0f, 1.0f,  // Top-right
-    -0.5f,  0.5f,  0.5f,    1.0f, 1.0f, 0.0f,    0.0f, 1.0f,  // Top-left
+    -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // Bottom-left
+    0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // Bottom-right
+    0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,   // Top-right
+    -0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,  // Top-left
 };
 
 /* Indices for vertices order */
 unsigned int indices[] = {
-    0, 1, 2, 
-    2, 3, 0
-};
+    0, 1, 2,
+    2, 3, 0};
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-    GLFWwindow* window;
+    GLFWwindow *window;
 
     /* Initialize the library */
     if (!glfwInit())
     {
         return -1;
     }
-    
+
     /* Set OpenGL to Version 3.3.0 */
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -70,7 +69,7 @@ int main(int argc, char* argv[])
 
     /* Print OpenGL version after completing initialization */
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
-
+    std::cout << "Hello World!" << std::endl;
     /* Set scope so that on widow close the destructors will be called automatically */
     {
         /* Blend to fix images with transperancy */
@@ -83,15 +82,15 @@ int main(int argc, char* argv[])
         IndexBuffer ib(indices, sizeof(indices));
 
         VertexBufferLayout layout;
-        layout.Push<float>(3);  // positions
-        layout.Push<float>(3);  // colors
-        layout.Push<float>(2);  // texCoords
+        layout.Push<float>(3); // positions
+        layout.Push<float>(3); // colors
+        layout.Push<float>(2); // texCoords
         va.AddBuffer(vb, layout);
 
         /* Create texture */
         Texture texture("res/textures/white.png");
         texture.Bind();
-         
+
         /* Create shaders */
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
@@ -103,7 +102,7 @@ int main(int argc, char* argv[])
         shader.Unbind();
 
         /* Enables the Depth Buffer */
-    	GLCall(glEnable(GL_DEPTH_TEST));
+        GLCall(glEnable(GL_DEPTH_TEST));
 
         /* Create camera */
         Camera camera(width, height);
@@ -122,12 +121,12 @@ int main(int argc, char* argv[])
             /* Initialize uniform color */
             glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
 
-             /* Initialize the model Translate, Rotate and Scale matrices */
+            /* Initialize the model Translate, Rotate and Scale matrices */
             glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
             glm::mat4 rot = glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(1.0f));
             glm::mat4 scl = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
 
-            /* Initialize the MVP matrices */ 
+            /* Initialize the MVP matrices */
             glm::mat4 model = trans * rot * scl;
             glm::mat4 view = camera.GetViewMatrix();
             glm::mat4 proj = camera.GetProjectionMatrix();
