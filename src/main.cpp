@@ -23,26 +23,6 @@
 #define GREEN 0.587
 #define BLUE 0.114
 
-/* Window size */
-const unsigned int width = 800;
-const unsigned int height = 800;
-// const float FOVdegree = 45.0f;  // Field Of View Angle
-const float near = 0.1f;
-const float far = 100.0f;
-
-/* Shape vertices coordinates with positions, colors, and corrected texCoords */
-float vertices[] = {
-    // positions            // colors            // texCoords
-    -0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // Bottom-left
-    0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // Bottom-right
-    0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,   // Top-right
-    -0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,  // Top-left
-};
-
-/* Indices for vertices order */
-unsigned int indices[] = {
-    0, 1, 2,
-    2, 3, 0};
 unsigned char *greyScale(unsigned char *input, int length, float red, float green, float blue);
 int main(int argc, char *argv[])
 {
