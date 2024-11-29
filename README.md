@@ -4,5 +4,3 @@ and my Partner Shadin Simaan ID: 206977522
 
 Rana's branch: dev_Rana.
 Shaden's branch: dev_Shaden.
-
-For now, I implemented the GrayScale Filter and we still have three to go...
