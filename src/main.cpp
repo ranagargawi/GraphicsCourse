@@ -35,7 +35,7 @@ float *convolution(float *buffer, float *newBuffer, int width, int height, float
 void applyKernel(float *buffer, float *newBuffer, int width, int x, int y, float *kernel, int kwidth, int kheight, float norm);
 float clippedPixel(float p);
 int doubleThreshhldingPixel(unsigned char p, int lower, int upper);
-
+unsigned char *halftone(unsigned char *buffer, int width, int height);
 unsigned char *floyedSteinberg(unsigned char *buffer, int width, int height, float a, float b, float c, float d);
 unsigned char trunc(unsigned char p);
 int main(void)
@@ -45,20 +45,26 @@ int main(void)
     int req_comps = 4;
     unsigned char *original = stbi_load(filepath.c_str(), &width, &height, &comps, req_comps);
 
-    unsigned char *greyBuffer = greyScale(original, width * height, RED_WEIGHT, GREEN_WEIGHT, BLUE_WEIGHT);
-    int result = stbi_write_png("res/textures/Grayscale.png", width, height, 1, greyBuffer, width);
+    unsigned char *greyscaleBuffer = greyScale(original, width * height, RED_WEIGHT, GREEN_WEIGHT, BLUE_WEIGHT);
+    stbi_write_png("res/textures/GrayScale.png", width, height, 1, greyscaleBuffer, width);
 
-    unsigned char *cannyBuffer = canny(greyBuffer, width, height, CANNY, 0.1, 0.15);
-    result = result + stbi_write_png("res/textures/Canny.png", width, height, 1, cannyBuffer, width);
+    unsigned char *cannyBuffer = canny(greyscaleBuffer, width, height, CANNY, 0.1, 0.15);
+    stbi_write_png("res/textures/Canny.png", width, height, 1, cannyBuffer, width);
+    unsigned char *halftoneBuff = halftone(greyscaleBuffer, width, height);
+    stbi_write_png("res/textures/HalfTone.png", width * 2, height * 2, 1, halftoneBuff, width * 2);
 
-    unsigned char *fsBuffer = floyedSteinberg(greyBuffer, width, height, ALPHA, BETA, GAMMA, DELTA);
-    result += stbi_write_png("res/textures/FloyedSteinberg.png", width, height, 1, fsBuffer, width);
-    std::cout << result << std::endl;
+    unsigned char *fsBuffer = floyedSteinberg(greyscaleBuffer, width, height, ALPHA, BETA, GAMMA, DELTA);
+    stbi_write_png("res/textures/FloyedSteinberg.png", width, height, 1, fsBuffer, width);
+    std::cout << ">>   Where do I find the pictures after the filters?  << " << std::endl;
+    std::cout << ">>   GrayScale: bin/res/textures/GrayScale.png   <<" << std::endl;
+    std::cout << ">>   Canny: bin/res/textures/Canny.png   <<" << std::endl;
+    std::cout << ">>   HalfTone: bin/res/textures/HalfTone.png    <<" << std::endl;
+    std::cout << ">>   FloyedSteinberg: bin/res/textures/FloyedSteinberg.pn   <<" << std::endl;
 
     delete[] original;
-    delete[] greyBuffer;
+    delete[] greyscaleBuffer;
     delete[] cannyBuffer;
-    // delete[] halfBuff;
+    delete[] halftoneBuff;
     delete fsBuffer;
     return 0;
 }
@@ -308,4 +314,57 @@ unsigned char trunc(unsigned char pixel)
 {
     // maps 0-255 into one of COMPRESSED_GS values spaced
     return (unsigned char)(pixel / 255.0 * COMPRESSED) / (float)COMPRESSED * 255.0;
+}
+
+unsigned char *halftone(unsigned char *buffer, int width, int height)
+{
+    const int length = width * height;
+    unsigned char *result = new unsigned char[length * 4];
+    const int resultWidth = width * 2;
+
+    for (int i = 0; i < length; ++i)
+    {
+        int row = i / width;
+        int col = i % width;
+        int resultRowBase = row * 2 * resultWidth;
+        int resultCol = col * 2;
+
+        unsigned char pixelValue = buffer[i];
+        if (pixelValue < WHITE / 5)
+        {
+            result[resultRowBase + resultCol] = BLACK;
+            result[resultRowBase + resultCol + 1] = BLACK;
+            result[resultRowBase + resultWidth + resultCol] = BLACK;
+            result[resultRowBase + resultWidth + resultCol + 1] = BLACK;
+        }
+        else if (pixelValue < WHITE / 5 * 2)
+        {
+            result[resultRowBase + resultCol] = BLACK;
+            result[resultRowBase + resultCol + 1] = BLACK;
+            result[resultRowBase + resultWidth + resultCol] = WHITE;
+            result[resultRowBase + resultWidth + resultCol + 1] = BLACK;
+        }
+        else if (pixelValue < WHITE / 5 * 3)
+        {
+            result[resultRowBase + resultCol] = WHITE;
+            result[resultRowBase + resultCol + 1] = BLACK;
+            result[resultRowBase + resultWidth + resultCol] = WHITE;
+            result[resultRowBase + resultWidth + resultCol + 1] = BLACK;
+        }
+        else if (pixelValue < WHITE / 5 * 4)
+        {
+            result[resultRowBase + resultCol] = BLACK;
+            result[resultRowBase + resultCol + 1] = WHITE;
+            result[resultRowBase + resultWidth + resultCol] = WHITE;
+            result[resultRowBase + resultWidth + resultCol + 1] = WHITE;
+        }
+        else
+        {
+            result[resultRowBase + resultCol] = WHITE;
+            result[resultRowBase + resultCol + 1] = WHITE;
+            result[resultRowBase + resultWidth + resultCol] = WHITE;
+            result[resultRowBase + resultWidth + resultCol + 1] = WHITE;
+        }
+    }
+    return result;
 }
